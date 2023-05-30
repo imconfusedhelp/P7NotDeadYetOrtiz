@@ -1,40 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class ZombieController : MonoBehaviour
 {
-    public Transform player;
-    public float moveSpeed = 5f;
-
     private Rigidbody2D rb;
-    private Vector2 movement;
+    private PlayerController player;
+    private float moveSpeed;
+    private Vector3 directionToPlayer;
+    private Vector3 localScale;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = this.GetComponent<Rigidbody2D>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-        Vector3 direction = player.position - transform.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        rb.rotation = angle;
-        direction.Normalize();
-        movement = direction;
+        rb = GetComponent<Rigidbody2D>();
+        player = FindObjectOfType(typeof(PlayerController)) as PlayerController;
+        moveSpeed = 4f;
+        localScale = transform.localScale;
     }
 
     private void FixedUpdate()
     {
-        moveCharacter(movement);
+        MoveEnemy();
     }
 
-    void moveCharacter(Vector2 direction)
+    // Update is called once per frame
+    private void MoveEnemy()
     {
-        rb.MovePosition((Vector2)transform.position + (direction * moveSpeed * Time.deltaTime));
+        directionToPlayer = (player.transform.position - transform.position).normalized;
+        rb.velocity = new Vector2(directionToPlayer.x, directionToPlayer.y) * moveSpeed;
+    }
+
+    private void LateUpdate()
+    {
+        if (rb.velocity.x > 0)
+        {
+            transform.localScale = new Vector3(localScale.x, localScale.y, localScale.z);
+        }
+        else if (rb.velocity.x < 0)
+        {
+            transform.localScale = new Vector3(-localScale.x, localScale.y, localScale.z);
+        }
     }
 }
