@@ -4,52 +4,51 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed;
-
-    Animator animator;
-
-    Rigidbody2D rigidbody2d;
-
-    Vector2 lookDirection = new Vector2(1, 0);
-
-    float horizontal;
-    float vertical;
+    private Rigidbody2D rb;
+    private Animator anim;
+    private float directionX, directionY, moveSpeed;
+    private Vector3 localScale;
 
     // Start is called before the first frame update
     void Start()
     {
-        rigidbody2d = GetComponent<Rigidbody2D>();
-
-        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        moveSpeed = 6f;
+        localScale = transform.localScale;
     }
 
     // Update is called once per frame
     void Update()
     {
-        horizontal = Input.GetAxis("Horizontal");
-        vertical = Input.GetAxis("Vertical");
+        directionX = Input.GetAxis("Horizontal") * moveSpeed;
+        directionY = Input.GetAxis("Vertical") * moveSpeed;
 
-        Vector2 move = new Vector2(horizontal, vertical);
-
-        if (!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
-        {
-            lookDirection.Set(move.x, move.y);
-            lookDirection.Normalize();
-        }
-
-        animator.SetFloat("Look X", lookDirection.x);
-        animator.SetFloat("Look Y", lookDirection.y);
-        animator.SetFloat("Speed", move.magnitude);
+        AnimationControl();
     }
 
-    void FixedUpdate()
+    private void LateUpdate()
     {
-        Vector2 position = rigidbody2d.position;
+        if (rb.velocity.x > 0)
+        {
+            transform.localScale = new Vector3(localScale.x, localScale.y, localScale.z);
+        }
+        else if (rb.velocity.x < 0)
+        {
+            transform.localScale = new Vector3(-localScale.x, localScale.y, localScale.z);
+        }
+    }
 
-        // set speed and direction
-        position.x = position.x + speed * horizontal * Time.deltaTime;
-        position.y = position.y + speed * vertical * Time.deltaTime;
+    private void AnimationControl()
+    {
+        if (rb.velocity.y == 0 && rb.velocity.x == 0)
+        {
+            anim.Play("PlayerIdle");
+        }
 
-        rigidbody2d.MovePosition(position);
+        if (rb.velocity.x != 0 || rb.velocity.y != 0)
+        {
+            anim.Play("PlayerRun");
+        }
     }
 }
