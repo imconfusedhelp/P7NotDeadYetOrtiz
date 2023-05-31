@@ -26,6 +26,11 @@ public class PlayerController : MonoBehaviour
 
         AnimationControl();
     }
+    
+    private void FixedUpdate()
+    {
+        rb.velocity = new Vector2(directionX, directionY);
+    }
 
     private void LateUpdate()
     {
@@ -43,12 +48,12 @@ public class PlayerController : MonoBehaviour
     {
         if (rb.velocity.y == 0 && rb.velocity.x == 0)
         {
-            anim.Play("PlayerIdle");
+            anim.Play("NormalIdle");
         }
 
         if (rb.velocity.x != 0 || rb.velocity.y != 0)
         {
-            anim.Play("PlayerRun");
+            anim.Play("NormalRun");
         }
     }
 }
